@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#fff8f2">
+    <title>จดหมายถึงคนพิเศษ</title>
+    <style>
+        :root {
+            color-scheme: light;
+            font-family: "Segoe UI", "Noto Sans Thai", sans-serif;
+            background: #fff8f2;
+            color: #583d43;
+            font-synthesis: none;
+            text-rendering: optimizeLegibility;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            min-width: 320px;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+            background:
+                radial-gradient(ellipse at 12% 18%, #ffe6e4 0, transparent 30%),
+                radial-gradient(ellipse at 88% 78%, #f9e3d3 0, transparent 32%),
+                #fff8f2;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        .page {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 20px 24px;
+            text-align: center;
+        }
+
+        .intro {
+            z-index: 1;
+            margin-bottom: 12px;
+        }
+
+        .eyebrow {
+            margin: 0 0 8px;
+            color: #bd727a;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+        }
+
+        h1 {
+            margin: 0;
+            color: #613f48;
+            font-family: Georgia, "Noto Serif Thai", serif;
+            font-size: clamp(2rem, 8vw, 3rem);
+            font-weight: 500;
+        }
+
+        .hint {
+            margin: 10px 0 0;
+            color: #977b7d;
+            font-size: 0.98rem;
+        }
+
+        .scene {
+            position: relative;
+            width: min(100%, 390px);
+            height: 440px;
+            margin-top: 16px;
+        }
+
+        .envelope {
+            position: absolute;
+            right: 50%;
+            bottom: 62px;
+            width: min(84vw, 320px);
+            height: 210px;
+            overflow: hidden;
+            transform: translateX(50%);
+            border-radius: 8px;
+            background: #e99ba0;
+            box-shadow: 0 18px 36px #9f62622b;
+        }
+
+        .letter {
+            position: absolute;
+            z-index: 2;
+            right: 7%;
+            bottom: 8px;
+            left: 7%;
+            display: flex;
+            height: 238px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 16px;
+            border: 1px solid #f0dfd4;
+            border-radius: 5px;
+            background: #fffdf9;
+            box-shadow: 0 5px 16px #67434a1a;
+            transform: translateY(0);
+            transition: transform 700ms cubic-bezier(.2, .75, .25, 1);
+        }
+
+        .letter[hidden] {
+            display: none;
+        }
+
+        .letter-mark {
+            margin: 0 0 7px;
+            color: #cf8188;
+            font-size: 1.15rem;
+        }
+
+        .letter h2 {
+            margin: 0;
+            color: #694850;
+            font-family: Georgia, "Noto Serif Thai", serif;
+            font-size: 1.35rem;
+            font-weight: 500;
+        }
+
+        .letter-copy {
+            margin: 8px 0 13px;
+            color: #8d7474;
+            font-size: 0.84rem;
+            line-height: 1.6;
+        }
+
+        .answer-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .answer {
+            min-height: 38px;
+            padding: 8px 15px;
+            border: 0;
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: 0.86rem;
+            transition: transform 160ms ease, background-color 160ms ease;
+        }
+
+        .answer:hover {
+            transform: translateY(-2px);
+        }
+
+        .answer:focus-visible,
+        .open-button:focus-visible {
+            outline: 3px solid #754e57;
+            outline-offset: 3px;
+        }
+
+        .answer-yes {
+            background: #c97780;
+            color: white;
+        }
+
+        .answer-yes:hover {
+            background: #b96570;
+        }
+
+        .answer-later {
+            background: #f5e9e4;
+            color: #795b61;
+        }
+
+        .answer-later.is-running-away {
+            position: fixed;
+            z-index: 10;
+            margin: 0;
+            transition: left 180ms ease, top 180ms ease, background-color 160ms ease;
+        }
+
+        .answer-placeholder {
+            display: inline-block;
+        }
+
+        .answer-message {
+            min-height: 1.4em;
+            margin: 8px 0 0;
+            color: #aa626c;
+            font-size: 0.82rem;
+        }
+
+        .respect-dialog {
+            width: min( calc(100% - 32px), 360px);
+            padding: 32px 28px 26px;
+            border: 1px solid #f0dfd4;
+            border-radius: 20px;
+            background: #fffdf9;
+            box-shadow: 0 24px 70px #51374040;
+            color: #583d43;
+            text-align: center;
+        }
+
+        .respect-dialog::backdrop {
+            background: #39262c80;
+            backdrop-filter: blur(4px);
+        }
+
+        .respect-dialog-mark {
+            margin: 0 0 12px;
+            color: #c97780;
+            font-size: 2rem;
+        }
+
+        .respect-dialog h2 {
+            margin: 0;
+            color: #694850;
+            font-family: Georgia, "Noto Serif Thai", serif;
+            font-size: 1.45rem;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        .respect-dialog-close {
+            min-width: 120px;
+            min-height: 42px;
+            margin-top: 22px;
+            padding: 9px 20px;
+            border: 0;
+            border-radius: 999px;
+            background: #c97780;
+            color: white;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 600;
+        }
+
+        .respect-dialog-close:hover {
+            background: #b96570;
+        }
+
+        .respect-dialog-close:focus-visible {
+            outline: 3px solid #754e57;
+            outline-offset: 3px;
+        }
+
+        .pocket {
+            position: absolute;
+            z-index: 3;
+            inset: 0;
+            background: linear-gradient(145deg, #f1aeb0, #df858d);
+            clip-path: polygon(0 0, 50% 56%, 100% 0, 100% 100%, 0 100%);
+        }
+
+        .flap {
+            position: absolute;
+            z-index: 4;
+            inset: 0 0 auto;
+            height: 59%;
+            background: linear-gradient(155deg, #f4b4b5, #e9949a);
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            transform: rotateX(0);
+            transform-origin: top;
+            transition: transform 650ms ease, z-index 0ms 325ms;
+        }
+
+        .seal {
+            position: absolute;
+            z-index: 5;
+            top: 46%;
+            left: 50%;
+            display: grid;
+            width: 43px;
+            height: 43px;
+            place-items: center;
+            border: 1px solid #f7c4c0;
+            border-radius: 50%;
+            background: #bd6875;
+            color: #fff5ed;
+            font-size: 1.1rem;
+            transform: translate(-50%, -50%);
+            transition: opacity 180ms ease;
+        }
+
+        .envelope.is-open {
+            overflow: visible;
+        }
+
+        .is-open .letter {
+            z-index: 6;
+            transform: translateY(-156px);
+        }
+
+        .is-open .flap {
+            z-index: 1;
+            transform: rotateX(180deg);
+        }
+
+        .is-open .seal {
+            opacity: 0;
+        }
+
+        .open-button {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            min-width: 166px;
+            min-height: 46px;
+            padding: 11px 22px;
+            border: 0;
+            border-radius: 999px;
+            background: #684951;
+            box-shadow: 0 8px 18px #68495126;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transform: translateX(-50%);
+            transition: background-color 160ms ease, transform 160ms ease;
+        }
+
+        .open-button:hover {
+            background: #513740;
+            transform: translate(-50%, -2px);
+        }
+
+        .footer {
+            margin: 5px 0 0;
+            color: #ac9290;
+            font-size: 0.75rem;
+        }
+
+        @media (max-width: 420px) {
+            .page {
+                padding-inline: 12px;
+            }
+
+            .scene {
+                height: 420px;
+            }
+
+            .envelope {
+                bottom: 58px;
+                height: 196px;
+            }
+
+            .letter {
+                height: 230px;
+                padding-inline: 10px;
+            }
+
+            .is-open .letter {
+                transform: translateY(-144px);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <header class="intro">
+            <p class="eyebrow">A LITTLE NOTE FOR YOU</p>
+            <h1>มีอะไรอยากบอก</h1>
+            <p class="hint">ลองเปิดจดหมายดูนะ 💌</p>
+        </header>
+
+        <section class="scene" aria-label="จดหมายขอเป็นแฟน">
+            <div class="envelope" id="envelope">
+                <article class="letter" id="letter" aria-labelledby="letter-title" hidden>
+                    <p class="letter-mark" aria-hidden="true">♥</p>
+                    <h2 id="letter-title">อยากเป็นคนพิเศษของเธอ</h2>
+                    <p class="letter-copy">ถ้าเธอรู้สึกเหมือนกัน<br>เราลองเริ่มต้นไปด้วยกันไหม?</p>
+                    <div class="answer-buttons">
+                        <button class="answer answer-yes" id="yes-button" type="button">ตกลง 💖</button>
+                        <button class="answer answer-later" id="later-button" type="button">ขอคิดดูก่อน</button>
+                    </div>
+                    <p class="answer-message" id="answer-message" aria-live="polite"></p>
+                </article>
+                <div class="pocket" aria-hidden="true"></div>
+                <div class="flap" aria-hidden="true"></div>
+                <div class="seal" aria-hidden="true">♥</div>
+            </div>
+
+            <button class="open-button" id="open-button" type="button" aria-expanded="false" aria-controls="letter">
+                เปิดจดหมาย
+            </button>
+        </section>
+
+        <p class="footer">ทำขึ้นด้วยความตั้งใจ ♡</p>
+    </main>
+
+    <dialog class="respect-dialog" id="respect-dialog" aria-labelledby="respect-title">
+        <p class="respect-dialog-mark" aria-hidden="true">♡</p>
+        <h2 id="respect-title">เราเคารพการตัดสินใจของเธอ</h2>
+        <button class="respect-dialog-close" id="respect-dialog-close" type="button">เข้าใจแล้ว</button>
+    </dialog>
+
+    <script>
+        const envelope = document.querySelector("#envelope");
+        const letter = document.querySelector("#letter");
+        const openButton = document.querySelector("#open-button");
+        const yesButton = document.querySelector("#yes-button");
+        const laterButton = document.querySelector("#later-button");
+        const answerMessage = document.querySelector("#answer-message");
+        const respectDialog = document.querySelector("#respect-dialog");
+        const respectDialogClose = document.querySelector("#respect-dialog-close");
+        const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+        const laterPlaceholder = document.createElement("span");
+        let laterButtonIsRunningAway = false;
+        let laterButtonClickCount = 0;
+
+        laterPlaceholder.className = "answer-placeholder";
+        laterPlaceholder.hidden = true;
+        laterPlaceholder.setAttribute("aria-hidden", "true");
+
+        function moveLaterButton() {
+            const buttonRect = laterButton.getBoundingClientRect();
+            const padding = 12;
+            const maxLeft = Math.max(padding, window.innerWidth - buttonRect.width - padding);
+            const maxTop = Math.max(padding, window.innerHeight - buttonRect.height - padding);
+            let left = padding;
+            let top = padding;
+
+            for (let attempt = 0; attempt < 8; attempt += 1) {
+                left = padding + Math.random() * (maxLeft - padding);
+                top = padding + Math.random() * (maxTop - padding);
+
+                if (Math.hypot(left - buttonRect.left, top - buttonRect.top) > 80) {
+                    break;
+                }
+            }
+
+            laterButton.style.left = `${left}px`;
+            laterButton.style.top = `${top}px`;
+        }
+
+        function restoreLaterButton() {
+            if (!laterButtonIsRunningAway) {
+                return;
+            }
+
+            laterPlaceholder.replaceWith(laterButton);
+            laterPlaceholder.hidden = true;
+            laterButton.classList.remove("is-running-away");
+            laterButton.style.left = "";
+            laterButton.style.top = "";
+            laterButtonIsRunningAway = false;
+        }
+
+        openButton.addEventListener("click", () => {
+            const isOpening = !envelope.classList.contains("is-open");
+
+            if (isOpening) {
+                letter.hidden = false;
+                requestAnimationFrame(() => envelope.classList.add("is-open"));
+                openButton.textContent = "ปิดจดหมาย";
+            } else {
+                restoreLaterButton();
+                envelope.classList.remove("is-open");
+                openButton.textContent = "เปิดจดหมาย";
+                if (motionPreference.matches) {
+                    letter.hidden = true;
+                } else {
+                    window.setTimeout(() => {
+                        if (!envelope.classList.contains("is-open")) {
+                            letter.hidden = true;
+                        }
+                    }, 700);
+                }
+            }
+
+            openButton.setAttribute("aria-expanded", String(isOpening));
+        });
+
+        yesButton.addEventListener("click", () => {
+            answerMessage.textContent = "เย้! ขอบคุณที่ตอบตกลงนะ 💕";
+            yesButton.disabled = true;
+            laterButton.hidden = true;
+            laterPlaceholder.hidden = true;
+        });
+
+        respectDialogClose.addEventListener("click", () => {
+            respectDialog.close();
+        });
+
+        laterButton.addEventListener("click", () => {
+            laterButtonClickCount += 1;
+
+            if (laterButtonClickCount >= 10) {
+                answerMessage.textContent = "";
+                restoreLaterButton();
+                respectDialog.showModal();
+                return;
+            }
+
+            answerMessage.textContent = "ไม่ลองคิดดูก่อนหรอ 🥺👉👈";
+
+            if (!laterButtonIsRunningAway) {
+                const buttonRect = laterButton.getBoundingClientRect();
+                laterPlaceholder.style.width = `${buttonRect.width}px`;
+                laterPlaceholder.style.height = `${buttonRect.height}px`;
+                laterButton.before(laterPlaceholder);
+                laterPlaceholder.hidden = false;
+                document.body.append(laterButton);
+                laterButton.style.left = `${buttonRect.left}px`;
+                laterButton.style.top = `${buttonRect.top}px`;
+                laterButton.classList.add("is-running-away");
+                laterButtonIsRunningAway = true;
+            }
+
+            moveLaterButton();
+        });
+
+        window.addEventListener("resize", () => {
+            if (laterButtonIsRunningAway) {
+                moveLaterButton();
+            }
+        });
+    </script>
+</body>
+</html>
